@@ -1,5 +1,109 @@
 # Changelog
 
+> **Note on versions before 0.6.0.** Releases 0.1.0 through 0.5.0 were built
+> from an ERCOT presentation of NOGRR282 given to the System Protection
+> Working Group on 24 February 2026, which described a draft. The rule
+> changed before approval. Rule values quoted in those entries below are
+> recorded as they were at the time and several of them are wrong. The
+> approved values are in 0.6.0 and in `validate/`.
+
+## 0.6.0 (2026-10-24)
+
+Rebuilt against the approved rule, and two false passes removed.
+
+### The provenance problem
+
+Versions 0.1.0 through 0.5.0 took their ERCOT values from a presentation
+about NOGRR282, not from NOGRR282. Nineteen further sets of stakeholder
+comments followed that presentation, from AEP, Tesla, Google, Vistra, TIEC,
+the Data Center Coalition and others, and the rule changed before the PUCT
+approved it on 9 July 2026.
+
+Everything now comes from the published rule: **ERCOT Nodal Operating Guide
+Section 2, file `02-080126.docx`, effective 1 August 2026**, Sections 2.6.4
+and 2.15, with Nodal Protocols Section 2.1 as amended by NPRR1308 for the
+definitions.
+
+What was wrong:
+
+| | before | approved rule |
+| --- | --- | --- |
+| section | 2.14 | 2.15 |
+| defined term | Large Electronic Load | Large Computational Load |
+| voltage measure | RMS positive sequence | RMS |
+| 1.10 < V <= 1.20 | 2.0 s | 1.0 s |
+| lowest two bands | 0.20 boundary | 0.35 boundary |
+| current ceiling | 125% | 150%, and capped at 0.5 s |
+| overvoltage window | 2 s | 1.0 s |
+| frequency edges | 61.8 and 57.0 | 63.0 and 57.5 |
+
+The earlier finding that the ceiling binds at 0.80 pu is void. At 150% it
+binds at 0.667 pu.
+
+### Two false passes
+
+A false pass tells an operator they comply when they do not. Both of these
+were in shipped code, and neither was caught by 162 tests. Both were found
+by noticing a sweep was not monotonic in sag depth and refusing to accept
+it.
+
+- A power supply in undervoltage lockout was drawing rated current to refill
+  its own store while the load it serves was switched off. That put a
+  single-sample spike into the power trace at the moment voltage recovered,
+  and the grader read the spike as a return to 90% of pre-disturbance
+  consumption.
+- A UPS rebuilding its DC bus drew full rated current for about fifty
+  milliseconds while the IT load was still off. That is real power from the
+  grid, so it was not a modelling error, but it is not the facility
+  returning to its consumption level. Recovery now requires the facility to
+  reach the level inside the window and still be at or above it when the
+  window closes, because the rule says "level" and a level is not a
+  transient.
+
+### Obligations added
+
+- Section 2.6.4 is now graded, by `grade_frequency`. The package previously
+  shipped a frequency table and graded nothing against it, which is worse
+  than not shipping the table.
+- 2.15(3)(e), the load-transfer route: begin returning within 0.25 s, reach
+  90% within 0.5 s. Declared in the facility description and never inferred
+  from a trace, because a facility that dropped out unintentionally should
+  not be graded against the clause written for one that did so by design.
+- 2.15(3)(c)(ii) relief: the transfer route relieves the keep-consuming
+  obligation only after 1 January 2028, because that is the only clause that
+  invokes it.
+- 2.15(3) cooling: cooling may trip below 0.35 pu for any duration, and
+  tripped cooling is subtracted from pre-disturbance consumption when
+  recovery is judged.
+- 2.15(3)(a), the overvoltage hold, and 2.15(7), the six-sags-in-90-seconds
+  floor.
+- 2.15(3)(d)'s 0.5 second overcurrent cap is reported and not scored, because
+  it appears to pull against 2.15(3)(b).
+
+### Saying what is not graded
+
+Seven clauses are now declared out of scope with a reason, carried on each
+code object rather than only in a document. Four places where the rule does
+not settle how it applies are carried as open questions and reported rather
+than resolved.
+
+### Checking the values against the source
+
+`validate/` ships the two sections as plain text plus two scripts.
+`check_tables.py` parses Table A out of the rule and asserts the package
+returns the stated time at both edges of every band. `check_scalars.py`
+asserts each constant against a quoted sentence and confirms the superseded
+draft values are absent. Both run in CI.
+
+### Other
+
+- `recharge_limit_pu` on a stage, so a facility can state how fast it
+  refills its store. The default is its current limit, which is the fastest
+  a facility could and the worst case for any overshoot obligation. With
+  that default a UPS breaches Energinet's 10% overshoot ceiling, which is a
+  finding rather than a bug.
+- 202 tests.
+
 ## 0.5.0 (2026-10-24)
 
 A bug fix that changes results, and the reclosing patterns that found it.

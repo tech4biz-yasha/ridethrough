@@ -64,8 +64,8 @@ code:     ERCOT NOGRR282
   0.75 pu held   0.5 s   trips           undervoltage protection trip
   0.50 pu held   0.5 s   trips           server PSU undervoltage lockout
   0.45 pu held  0.25 s   trips           server PSU undervoltage lockout
-  0.20 pu held  0.25 s   trips           server PSU undervoltage lockout
-  0.15 pu held  0.15 s   trips           server PSU undervoltage lockout
+  0.35 pu held  0.25 s   trips           server PSU undervoltage lockout
+  0.30 pu held  0.15 s   trips           server PSU undervoltage lockout
   0.00 pu held  0.15 s   trips           server PSU undervoltage lockout
 
 overall: trips
@@ -98,9 +98,9 @@ ridethrough sweep
 
 ```
 code: ERCOT NOGRR282
-archetype                 0.85/2s  0.80/2s  0.75/0.5s  0.50/0.5s  0.45/0.25s  0.20/0.25s  0.15/0.15s  0.00/0.15s
----------------------------------------------------------------------------------------------------------------
-no-ups                       pass     pass       TRIP       TRIP        TRIP        TRIP        TRIP        TRIP
+archetype                 0.85/2s  0.80/2s  0.75/0.5s  0.50/0.5s  0.45/0.25s  0.35/0.25s  0.30/0.15s  0.00/0.15s
+----------------------------------------------------------------------------------------------------------------
+no-ups                       pass     pass       pass       TRIP        TRIP        TRIP        TRIP        TRIP
 no-ups-relay                 pass     TRIP       TRIP       TRIP        TRIP        TRIP        TRIP        TRIP
 ups                          pass     TRIP       TRIP       TRIP        TRIP        TRIP        TRIP        TRIP
 ups-battery                  pass     pass       pass       pass        pass        pass        pass        pass
@@ -133,7 +133,7 @@ physics: sag-counting scheme trip at 39500 ms
 
 A site with a scheme that transfers after four sags in a minute passes every
 single-sag test and fails the train. That is the behaviour ERCOT Section
-2.14(2)(6) now forbids, reproduced from first principles rather than quoted
+2.15(7) now forbids, reproduced from first principles rather than quoted
 from an incident report.
 
 ## Reclosing
@@ -168,7 +168,7 @@ does not give the individual sag timestamps, so their placement is ours.
 Two things this showed, both pinned as tests. At that magnitude and duration
 stored energy is not the failure mechanism, because the sag is too shallow
 and too short to drain a bus that refills between shots. What fails instead
-is either a current limit above the 125% ceiling or a scheme that counts
+is either a current limit above the 150% ceiling or a scheme that counts
 sags, and for the counting scheme the answer depends on where the window
 falls: the pattern puts four sags inside one minute and two more well
 outside it, so a counter set at four trips on the fourth and a counter set
@@ -185,8 +185,8 @@ ridethrough sweep --code energinet
 
 | key | envelope | current ceiling | recovery |
 | --- | --- | --- | --- |
-| `ercot` | band table | 1.25 x normal | 90% in 2 s |
-| `ercot-2028` | band table | 1.25 x normal | 90% in 2 s |
+| `ercot` | band table | 1.50 x normal | 90% in 2 s |
+| `ercot-2028` | band table | 1.50 x normal | 90% in 2 s |
 | `energinet` | voltage against time | none, blocking permitted | 80% in 5 s, 90% in 20 s, 95% in 30 s |
 
 The current column is not a detail. ERCOT caps the current a facility may
@@ -194,9 +194,63 @@ draw during a disturbance. Energinet Section 11(2) explicitly permits current
 blocking and sets no ceiling at all. A facility that satisfies one of them on
 current has told you nothing about the other.
 
-`ercot-2028` differs in one place. Section 2.14(2)(c)(ii) moves the floor
+`ercot-2028` differs in one place. Section 2.15(3)(c)(ii) moves the floor
 below which a facility may stop drawing power from 0.80 pu to 0.50 pu, for
 facilities qualifying after 1 January 2028.
+
+## Frequency
+
+Section 2.6.4 is graded separately, because the rule is separate.
+
+```python
+from ridethrough import grade_frequency
+```
+
+Three obligations: the table, the requirement to keep consuming current, and
+the frequency transfer route. The clause saying a facility "should" stay
+within 10% of its pre-disturbance power is reported and not scored, because
+the rule says should rather than shall.
+
+## Checking the numbers against the rule
+
+A claim that the values come from the rule is worth less than a script that
+checks it, so both ship with the package.
+
+```
+python validate/check_tables.py
+python validate/check_scalars.py
+```
+
+The first parses Table A out of the rule text in `validate/` and asserts
+this package returns the stated minimum ride-through time at both edges of
+every band. The second asserts each constant against a quoted sentence from
+the source, and confirms the superseded draft values are absent. Both run in
+CI. `validate/coverage.md` lists every clause of both sections and marks it
+graded or out of scope.
+
+## What is not graded, and why
+
+Seven clauses are declared out of scope with a reason, carried on each code
+object rather than only in a document:
+
+```python
+from ridethrough import ERCOT
+for clause, reason in ERCOT.out_of_scope:
+    print(clause, reason)
+```
+
+They are the exemption criteria, the protection-setting requirements, the
+failure investigation process, the UFLS carve-out, the "if capable"
+proportional reduction in 2.15(3)(c)(i), the per-device action count in
+2.15(3)(e)(i), and the 2.15(3)(f) overvoltage trip allowance.
+
+Four places where the rule does not settle how it applies are carried as
+open questions and reported rather than resolved:
+
+```python
+for q in ERCOT.open_questions:
+    print(q)
+```
 
 ## Verdicts
 
@@ -211,25 +265,53 @@ Exit codes follow: 0, 1, 2, 3.
 
 ## Where the numbers come from
 
-Every value in `ridethrough/envelope.py` and `ridethrough/codes.py` is
-transcribed from a published source. Nothing is inferred.
+Every ERCOT value is transcribed from the published rule: **ERCOT Nodal
+Operating Guide Section 2, file `02-080126.docx`, effective 1 August 2026**,
+Sections 2.6.4 and 2.15. Definitions come from Nodal Protocols Section 2.1
+as amended by NPRR1308. Both were approved by the Public Utility Commission
+of Texas on 9 July 2026 in Project No. 54445.
 
-ERCOT, *Large Electronic Load Ride-Through Requirements, NOGRR 282 and
-NPRR 1308*, SPWG, 24 February 2026. Section 2.14(2), Table A:
+Section 2.15(3), Table A:
 
-| RMS positive sequence voltage (pu) | Minimum ride-through time |
+| RMS voltage (pu of nominal) | Minimum ride-through time |
 | --- | --- |
 | V > 1.20 | may ride through or trip |
-| 1.10 < V <= 1.20 | 2.0 s |
+| 1.10 < V <= 1.20 | 1.0 s |
 | 0.90 <= V <= 1.10 | continuous |
 | 0.80 <= V < 0.90 | 2.0 s |
 | 0.50 <= V < 0.80 | 0.5 s |
-| 0.20 <= V < 0.50 | 0.25 s |
-| V < 0.20 | 0.15 s |
+| 0.35 <= V < 0.50 | 0.25 s |
+| V < 0.35 | 0.15 s |
 
-Energinet, *Technical Regulation 3.4.3, Requirements for
-Transmission-Connected Demand Facilities, Revision 1*, effective
-1 November 2024. Section 11(2), Table 2:
+Section 2.6.4(3), Table A:
+
+| Frequency (Hz) | Minimum ride-through time |
+| --- | --- |
+| f > 63.0 | may ride through or trip |
+| 61.2 < f <= 63.0 | 299 s |
+| 58.8 <= f <= 61.2 | continuous |
+| 57.5 <= f < 58.8 | 299 s |
+| f < 57.5 | may ride through or trip |
+
+Current ceiling, 2.15(3)(d): 150% of maximum normal current, and the
+overcurrent may persist no more than 0.5 seconds.
+
+Recovery, 2.15(3)(b) and (c): at least 90% of pre-disturbance consumption
+within two seconds of voltage returning above 0.90 pu.
+
+Transfer route, 2.15(3)(e): begin returning within 0.25 seconds and reach
+90% within 0.5 seconds. Tighter than the general route, so declaring a
+transfer scheme makes the obligation harder rather than easier.
+
+Cooling, 2.15(3): cooling or mechanical load may trip below 0.35 pu for any
+duration, and tripped cooling is subtracted from pre-disturbance consumption
+when recovery is judged.
+
+Repeated sags, 2.15(7): a facility forced to use a counting scheme must
+survive at least six sags in 90 seconds.
+
+Energinet Technical Regulation 3.4.3, Revision 1, effective
+1 November 2024. UV-FRT from Section 11(2), Table 2:
 
 | point | voltage (pu) | time (s) |
 | --- | --- | --- |
@@ -238,7 +320,7 @@ Transmission-Connected Demand Facilities, Revision 1*, effective
 | Urec1 | 0.35 | trec2 0.55 |
 | Urec2 | 0.90 | trec3 1.5 |
 
-The full method, with each statement tied to its section or its file, is in
+The full method, with each statement tied to its clause or its file, is in
 [docs/METHOD.md](docs/METHOD.md).
 
 ## How the model works
@@ -270,9 +352,9 @@ the ERCOT current obligation at any sag depth. It limits itself and runs out
 of stored energy instead. Where a site fails depends on its current limit,
 not only on how much energy it stores.
 
-A constant power load draws 1/V, so the 125% ceiling binds at exactly
-0.80 pu. That agrees with ERCOT's own note on the same slide, which says 125%
-allows constant power for sags down to 0.8 pu.
+A constant power load draws 1/V, so the 150% ceiling binds at exactly
+0.667 pu. Above that a facility can hold constant power inside the ceiling;
+below it, it cannot.
 
 ## The one interpretation we made
 
@@ -287,7 +369,7 @@ question we intend to put to the ERCOT Large Load Working Group.
 Building the repeated-sag case showed why it matters. Summed across a whole
 trace, six separate 60 ms sags look like one 360 ms excursion, which is
 beyond what the band allows, so the grader wrongly concluded the facility was
-free to trip. Section 2.14(2)(6) is explicit that each condition must be
+free to trip. Section 2.15(7) is explicit that each condition must be
 ridden through separately. The trace is now split into separate excursions
 and each is measured on its own. Both the old behaviour and the fix are
 pinned as tests.
@@ -328,9 +410,10 @@ ridethrough/      the package
   facility.py     the facility model
   archetypes.py   six configurations, with their provenance
   spec.py         build a facility from JSON
-  cli.py          check, run, sweep, simulate, repeated, grade, codes
+  cli.py          check, run, sweep, simulate, repeated, reclosing, grade, codes
+validate/         the rule text, and scripts that check the package against it
 docs/METHOD.md    the method, statement by statement
-tests/            116 tests
+tests/            202 tests
 results/          one generated scorecard per code
 examples/         a facility description and two hand-written runs
 action.yml        the GitHub Action

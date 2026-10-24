@@ -1,5 +1,5 @@
 {
-  "generated_by": "ridethrough 0.5.0",
+  "generated_by": "ridethrough 0.6.0",
   "scorecards": {
     "energinet": "results/scorecard-energinet.json",
     "ercot": "results/scorecard-ercot.json",

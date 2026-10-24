@@ -107,7 +107,7 @@ def ups_with_battery(rated_power_w: float = 50e6) -> Facility:
 def ups_with_load_reduction(rated_power_w: float = 50e6) -> Facility:
     """UPS with battery, and an IT load that reduces in proportion to the sag.
 
-    This is the behaviour ERCOT Section 2.14(2)(c) contemplates: the facility
+    This is the behaviour ERCOT Section 2.15(3)(c) contemplates: the facility
     may reduce consumption during the sag provided it comes back in time.
     """
     return Facility(
@@ -136,7 +136,7 @@ def ups_with_sag_counter(rated_power_w: float = 50e6) -> Facility:
     inside a minute.
 
     This is the northern Virginia failure mode. The site survives any single
-    sag and then gives up on a train of them. ERCOT Section 2.14(2)(6) now
+    sag and then gives up on a train of them. ERCOT Section 2.15(7) now
     forbids exactly this where the facility is required to ride each one
     through. The count of four is chosen to show the behaviour and is not
     taken from any vendor's settings.

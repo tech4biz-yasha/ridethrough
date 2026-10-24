@@ -18,4 +18,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
       - run: ruff check .
+      - run: python validate/check_tables.py
+      - run: python validate/check_scalars.py
       - run: python -m pytest -q

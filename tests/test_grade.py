@@ -24,11 +24,11 @@ from ridethrough.grade import (
     "voltage,expected",
     [
         (1.25, None),
-        (1.15, 2.0),
+        (1.15, 1.0),
         (1.00, CONTINUOUS),
         (0.85, 2.0),
         (0.65, 0.5),
-        (0.35, 0.25),
+        (0.40, 0.25),
         (0.10, 0.15),
     ],
 )
@@ -39,11 +39,11 @@ def test_voltage_table(voltage, expected):
 @pytest.mark.parametrize(
     "freq,expected",
     [
-        (62.0, None),
-        (61.5, 299.0),
+        (63.5, None),
+        (62.0, 299.0),
         (60.0, CONTINUOUS),
         (58.0, 299.0),
-        (56.0, None),
+        (57.0, None),
     ],
 )
 def test_frequency_table(freq, expected):
@@ -53,14 +53,16 @@ def test_frequency_table(freq, expected):
 def test_band_edges_are_closed_where_the_source_says_so():
     assert ERCOT_VOLTAGE.minimum_time(0.90) == CONTINUOUS
     assert ERCOT_VOLTAGE.minimum_time(1.10) == CONTINUOUS
-    assert ERCOT_VOLTAGE.minimum_time(1.20) == 2.0
+    assert ERCOT_VOLTAGE.minimum_time(1.20) == 1.0
     assert ERCOT_VOLTAGE.minimum_time(0.80) == 2.0
     assert ERCOT_VOLTAGE.minimum_time(0.50) == 0.5
-    assert ERCOT_VOLTAGE.minimum_time(0.20) == 0.25
+    assert ERCOT_VOLTAGE.minimum_time(0.35) == 0.25
+    assert ERCOT_VOLTAGE.minimum_time(0.34) == 0.15
 
 
-def test_current_limit_is_125_percent():
-    assert ERCOT_CURRENT_LIMIT == 1.25
+def test_current_limit_is_150_percent():
+    """2.15(3)(d): 150% of maximum normal current."""
+    assert ERCOT_CURRENT_LIMIT == 1.50
 
 
 # --- is ride-through required ------------------------------------------
@@ -139,13 +141,13 @@ def test_disconnection_is_caught():
 
 def test_current_over_the_ceiling_is_caught():
     v, c, p, _ = good_response()
-    hot = Trace(times=[0.0, 1.0, 1.4, 5.0], values=[1.0, 1.6, 1.0, 1.0])
+    hot = Trace(times=[0.0, 1.0, 1.4, 5.0], values=[1.0, 1.7, 1.0, 1.0])
     r = grade(v, c, p, hot,
               pre_disturbance_power=100.0, max_normal_current=1.0)
     assert r.verdict == TRIPS
     assert r.trip_driver == "current ceiling"
     ceiling_check = next(x for x in r.checks if x.name == "current ceiling")
-    assert ceiling_check.margin == pytest.approx(1.25 - 1.6)
+    assert ceiling_check.margin == pytest.approx(1.50 - 1.7)
 
 
 def test_slow_recovery_is_caught():

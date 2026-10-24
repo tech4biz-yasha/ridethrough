@@ -66,8 +66,10 @@ def test_json_output_is_parseable(tmp_path, capsys):
     payload = json.loads(capsys.readouterr().out)
     assert payload["verdict"] == "rides through"
     assert payload["trip_driver"] is None
-    # envelope, stays connected, current ceiling, keeps consuming, recovery
-    assert len(payload["checks"]) == 5
+    # The count is not pinned: obligations appear or not depending on what
+    # the run actually exercises. Pin the ones that must always be there.
+    names = {c["name"] for c in payload["checks"]}
+    assert {"envelope", "stays connected", "current ceiling"} <= names
 
 
 @pytest.mark.parametrize("example", [
@@ -89,7 +91,7 @@ def test_explicit_grade_subcommand_works(tmp_path):
 
 
 def test_simulate_trips_the_unprotected_site(capsys):
-    code = main(["simulate", "no-ups", "--depth", "0.65", "--duration", "0.4"])
+    code = main(["simulate", "no-ups", "--depth", "0.40", "--duration", "0.25"])
     out = capsys.readouterr().out
     assert code == 1
     assert "trips" in out
@@ -110,7 +112,7 @@ def test_simulate_writes_a_run_file_the_grader_can_read(tmp_path):
 
 
 def test_simulate_json_is_parseable(capsys):
-    main(["simulate", "no-ups", "--json"])
+    main(["simulate", "no-ups", "--depth", "0.40", "--duration", "0.25", "--json"])
     payload = json.loads(capsys.readouterr().out)
     assert payload["verdict"] == "trips"
     assert payload["model_trip_driver"]
@@ -130,9 +132,28 @@ def test_sweep_writes_a_table(tmp_path):
     out = tmp_path / "scorecard.json"
     main(["sweep", "--out", str(out)])
     table = json.loads(out.read_text())
-    assert len(table["points"]) == len(
-        __import__("ridethrough").ERCOT_VOLTAGE.corner_points()
-    )
-    assert "NOGRR 282" in table["source"]
+    from ridethrough.envelope import ERCOT_VOLTAGE
+
+    assert len(table["points"]) == len(ERCOT_VOLTAGE.corner_points())
+    assert "02-080126.docx" in table["source"]
     for row in table["rows"].values():
         assert len(row["cells"]) == len(table["points"])
+
+
+def test_piping_into_head_does_not_raise(tmp_path):
+    """A tool that prints a traceback when piped into head is a rough edge.
+    The default SIGPIPE handler makes the process end quietly instead."""
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    piped = subprocess.run(
+        f"{sys.executable} -m ridethrough.cli sweep | head -3",
+        shell=True,
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    assert "BrokenPipeError" not in piped.stderr
+    assert "Traceback" not in piped.stderr

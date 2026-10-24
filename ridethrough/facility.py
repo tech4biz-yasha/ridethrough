@@ -58,6 +58,13 @@ class Stage:
     cutoff_dc_volts: float
     current_limit_pu: float
     restart_seconds: float = 0.0
+    # The most input current this stage draws while refilling its store,
+    # as a multiple of its current at rated power. None means the stage
+    # refills as fast as its current limit allows, which is the fastest a
+    # facility could and therefore the worst case for any overshoot
+    # obligation. Real rectifiers usually ramp more gently, so a facility
+    # that knows its own figure should state it.
+    recharge_limit_pu: float | None = None
 
     def capacitance(self, rated_power_w: float) -> float:
         span = self.nominal_dc_volts**2 - self.cutoff_dc_volts**2
@@ -115,10 +122,18 @@ class Facility:
     reduces_load_with_voltage: bool = False
     # Some UPS control schemes transfer the facility to backup after a count
     # of disturbances in a window. That is what happened in northern Virginia,
-    # and ERCOT Section 2.14(2)(6) now forbids it for sags the facility is
+    # and ERCOT Section 2.15(7) now forbids it for sags the facility is
     # required to ride through. None means no such scheme.
     sag_count_trip: int | None = None
     sag_count_window_s: float = 60.0
+    # ERCOT 2.15(3): cooling or mechanical load may ride through or trip
+    # below 0.35 pu for any duration. Set this to the voltage below which
+    # this facility's cooling actually trips, or leave it None if cooling
+    # rides through. It is a design fact, not an assumption.
+    cooling_trips_below_pu: float | None = None
+    # ERCOT 2.15(3)(e): whether this facility implements a load-transfer or
+    # control stabilization scheme. Declared, never inferred from a trace.
+    transfer_scheme: bool = False
     notes: str = ""
 
     @property
@@ -144,6 +159,9 @@ class RunTraces:
     trip_time: float | None = None
     psu_bus_volts: Trace | None = None
     ups_bus_volts: Trace | None = None
+    cooling_tripped: bool = False
+    pre_disturbance_cooling_power: float = 0.0
+    transfer_scheme: bool = False
 
     def as_run(self, name: str) -> dict:
         def pack(trace: Trace) -> dict:
@@ -158,6 +176,9 @@ class RunTraces:
             "active_power": pack(self.active_power),
             "current": pack(self.current),
         }
+        run["cooling_tripped"] = self.cooling_tripped
+        run["pre_disturbance_cooling_power"] = self.pre_disturbance_cooling_power
+        run["transfer_scheme"] = self.transfer_scheme
         if self.trip_driver:
             run["model_trip_driver"] = self.trip_driver
             run["model_trip_time"] = self.trip_time
@@ -302,6 +323,7 @@ def simulate(
     ups_collapsed = False
     sag_times: list[float] = []
     in_sag = False
+    cooling_off = False
 
     steps = int(round(duration_s / dt))
     sample_every = max(1, int(round(1e-3 / dt)))
@@ -372,8 +394,27 @@ def simulate(
         # into refilling the store. A rectifier draws more than the load
         # after a sag to rebuild its bus, which is what lets a facility
         # survive a second sag at all.
-        psu_refill = min(
-            max(0.0, psu_available - it_demand), (psu_full - psu_energy) / dt
+        #
+        # A supply in undervoltage lockout draws nothing, so it does not
+        # refill either. Without this the model drew full rated current to
+        # rebuild a store while its own load was switched off, which put a
+        # single-sample power spike into the trace at the moment voltage
+        # recovered. The grader then read that spike as a return to 90% of
+        # pre-disturbance consumption, which was a false pass.
+        locked_out = psu_off_until is not None and t < psu_off_until
+        psu_recharge_cap = (
+            facility.psu.recharge_limit_pu
+            if facility.psu.recharge_limit_pu is not None
+            else facility.psu.current_limit_pu
+        ) * it_rated * psu_input_pu
+        psu_refill = (
+            0.0
+            if locked_out
+            else min(
+                max(0.0, psu_available - it_demand),
+                max(0.0, psu_recharge_cap - it_demand),
+                (psu_full - psu_energy) / dt,
+            )
         )
         psu_draw = min(psu_available, it_demand + psu_refill)
         psu_energy += (psu_draw - it_demand) * dt
@@ -391,8 +432,17 @@ def simulate(
             psu_energy = psu_full
             psu_off_until = None
 
+        # Cooling may trip outright below a stated voltage, which ERCOT
+        # 2.15(3) permits for any duration. Once off it stays off for the
+        # rest of the run, which is the conservative reading.
+        if (
+            facility.cooling_trips_below_pu is not None
+            and v < facility.cooling_trips_below_pu
+        ):
+            cooling_off = True
+
         # Cooling follows the IT load through a first-order lag.
-        cooling_target = cooling_rated * (
+        cooling_target = 0.0 if cooling_off else cooling_rated * (
             it_demand / it_rated if it_rated > 0 else 0.0
         )
         cooling_power += (cooling_target - cooling_power) * dt / (
@@ -405,8 +455,14 @@ def simulate(
             ups_available = (
                 v * facility.ups.current_limit_pu * rated if connected else 0.0
             )
+            ups_recharge_cap = (
+                facility.ups.recharge_limit_pu
+                if facility.ups.recharge_limit_pu is not None
+                else facility.ups.current_limit_pu
+            ) * rated * (v if connected else 0.0)
             ups_refill = min(
                 max(0.0, ups_available - facility_demand),
+                max(0.0, ups_recharge_cap - facility_demand),
                 (ups_full - ups_energy) / dt,
             )
             ups_draw = min(ups_available, facility_demand + ups_refill)
@@ -454,6 +510,9 @@ def simulate(
         max_normal_current=1.0,
         trip_driver=trip_driver,
         trip_time=trip_time,
+        cooling_tripped=cooling_off,
+        pre_disturbance_cooling_power=cooling_rated,
+        transfer_scheme=facility.transfer_scheme,
         psu_bus_volts=Trace(times, psu_v_out),
         ups_bus_volts=Trace(times, ups_v_out) if has_ups else None,
     )

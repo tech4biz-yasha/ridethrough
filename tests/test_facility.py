@@ -140,42 +140,46 @@ def ceiling_check(result):
     return next(c for c in result.checks if c.name == "current ceiling")
 
 
-def test_ercot_note_that_125_percent_allows_constant_power_down_to_080_pu():
-    """ERCOT's own slide says the 125% ceiling allows constant power for sags
-    down to 0.8 pu. A constant power load draws 1/V, and 1/0.8 is exactly
-    1.25, so a facility that is free to draw that much should sit on the
-    ceiling at 0.80 pu and breach just below it.
+def test_the_150_percent_ceiling_binds_at_two_thirds_pu():
+    """A constant power load draws 1/V, so a 150% ceiling binds where
+    1/V = 1.5, that is at 0.667 pu. Above that the facility is inside the
+    ceiling; below it, it is not.
 
-    The no-UPS archetype is the right one to test this on, because its PSU
-    current limit of 1.5 pu is above the ceiling. See the test below for what
-    happens when the limit is under the ceiling instead.
+    This replaces an earlier test which pinned 0.80 pu. That figure came
+    from a 125% ceiling in a draft of the rule. The approved rule at
+    2.15(3)(d) sets 150%.
     """
-    assert ceiling_check(graded(run(no_ups(RATED), depth=0.80, duration=0.4))).passed
+    from dataclasses import replace
+
+    # A facility whose own current limit is above the code ceiling, so the
+    # code ceiling is what binds rather than the equipment.
+    unlimited = replace(no_ups(RATED), psu=replace(SERVER_PSU, current_limit_pu=3.0))
+    assert ceiling_check(graded(run(unlimited, depth=0.70, duration=0.4))).passed
     assert not ceiling_check(
-        graded(run(no_ups(RATED), depth=0.78, duration=0.4))
+        graded(run(unlimited, depth=0.64, duration=0.4))
     ).passed
 
 
 def test_a_limit_below_the_ceiling_can_never_breach_it():
     """A finding worth stating plainly, because it changes where a facility
     fails. The UPS archetypes limit input current to 1.2 pu, which is under
-    the 1.25 pu ceiling. They therefore cannot fail the current obligation at
-    any sag depth. They run out of stored energy instead.
+    the 1.50 pu ceiling. They therefore cannot fail the current obligation
+    at any sag depth. They run out of stored energy instead.
     """
-    assert UPS_DC_BUS.current_limit_pu < 1.25
+    assert UPS_DC_BUS.current_limit_pu < 1.50
     for depth in (0.78, 0.50, 0.20, 0.0):
         traces = run(double_conversion_ups(RATED), depth=depth, duration=0.4)
         assert traces.current.maximum() <= UPS_DC_BUS.current_limit_pu + 1e-9
-        assert traces.current.maximum() < 1.25
+        assert traces.current.maximum() < 1.50
 
 
 def test_load_reduction_keeps_current_off_the_ceiling():
     from dataclasses import replace
 
-    base = no_ups(RATED)
+    base = replace(no_ups(RATED), psu=replace(SERVER_PSU, current_limit_pu=3.0))
     reducing = replace(base, reduces_load_with_voltage=True)
-    assert not ceiling_check(graded(run(base, depth=0.70, duration=0.4))).passed
-    assert ceiling_check(graded(run(reducing, depth=0.70, duration=0.4))).passed
+    assert not ceiling_check(graded(run(base, depth=0.60, duration=0.4))).passed
+    assert ceiling_check(graded(run(reducing, depth=0.60, duration=0.4))).passed
 
 
 # --- end to end --------------------------------------------------------
@@ -194,7 +198,11 @@ def test_a_shallow_sag_inside_the_band_is_survived_by_every_archetype():
 
 
 def test_the_unprotected_site_fails_where_the_battery_site_passes():
-    hard = dict(depth=0.65, duration=0.4)
+    """A deep sag the PSUs cannot hold. 0.65 pu no longer separates these two
+    under the approved rule, because the 150% ceiling does not bite there and
+    the PSU store survives. 0.40 pu held 250 ms does separate them.
+    """
+    hard = dict(depth=0.40, duration=0.25)
     assert graded(run(no_ups(RATED), **hard)).verdict == TRIPS
     assert graded(run(ups_with_battery(RATED), **hard)).verdict == RIDES_THROUGH
 

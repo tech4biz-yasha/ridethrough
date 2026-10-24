@@ -82,7 +82,7 @@ def test_energinet_permits_zero_volts_for_150_ms():
 def test_energinet_sets_no_current_ceiling_because_blocking_is_permitted():
     assert ENERGINET.current_limit_pu is None
     assert ENERGINET.current_blocking_allowed is True
-    assert ERCOT.current_limit_pu == 1.25
+    assert ERCOT.current_limit_pu == 1.50
     assert ERCOT.current_blocking_allowed is False
 
 
@@ -101,13 +101,14 @@ def test_the_2028_rule_moves_the_keep_consuming_floor():
 
 
 def test_a_site_graded_under_one_code_is_not_graded_under_the_other():
-    """A 0.70 pu sag held 500 ms is inside ERCOT's envelope and below
-    Energinet's floor at that moment, so the two codes reach different
-    answers about whether ride-through is even required."""
-    profile = rectangular_sag(0.70, 0.5)
-    traces = run(ARCHETYPES["no-ups"](RATED), profile)
-    assert graded(traces, ERCOT).verdict == TRIPS
-    assert graded(traces, ENERGINET).verdict == RIDES_THROUGH
+    """A 0.85 pu sag held 1.9 s sits inside ERCOT's envelope, which allows
+    2.0 s in the 0.80 to 0.90 band, and below Energinet's floor, which has
+    risen past 0.85 pu well before 1.9 s. The two codes therefore disagree
+    about whether ride-through is required at all."""
+    profile = rectangular_sag(0.85, 1.9)
+    traces = run(ARCHETYPES["no-ups"](RATED), profile, total=8.0)
+    assert graded(traces, ERCOT).required is True
+    assert graded(traces, ENERGINET).verdict == NOT_REQUIRED
 
 
 def test_current_ceiling_is_not_applied_under_energinet():
@@ -188,9 +189,11 @@ def test_sags_spread_past_the_window_do_not_trip_the_counter():
 def test_ercot_corners_come_from_the_table():
     corners = dict(ERCOT_VOLTAGE.corner_points())
     assert corners[0.85] == 2.0
+    assert corners[0.80] == 2.0
     assert corners[0.50] == 0.5
-    assert corners[0.20] == 0.25
+    assert corners[0.35] == 0.25
     assert corners[0.00] == 0.15
+    assert 0.20 not in corners
 
 
 def test_energinet_corners_come_from_the_curve():

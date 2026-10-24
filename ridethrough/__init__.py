@@ -1,7 +1,15 @@
 """An open grader for data centre voltage ride-through claims."""
 
 from .archetypes import ARCHETYPES
-from .codes import CODES, ENERGINET, ERCOT, ERCOT_2028, GridCode, RecoveryPoint
+from .codes import (
+    CODES,
+    ENERGINET,
+    ERCOT,
+    ERCOT_2028,
+    GridCode,
+    RecoveryPoint,
+    TransferPath,
+)
 from .envelope import (
     ENERGINET_UV_FRT,
     ERCOT_CURRENT_LIMIT,
@@ -35,11 +43,12 @@ from .grade import (
     Trace,
     excursions,
     grade,
+    grade_frequency,
     ride_through_required,
 )
 from .spec import facility_from_dict, facility_from_file
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 __all__ = [
     "ARCHETYPES",
@@ -50,6 +59,8 @@ __all__ = [
     "ERCOT",
     "ERCOT_2028",
     "GridCode",
+    "TransferPath",
+    "grade_frequency",
     "RecoveryPoint",
     "VoltageProfile",
     "dominion_july_2024",

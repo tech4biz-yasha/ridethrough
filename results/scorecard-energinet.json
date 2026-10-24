@@ -40,7 +40,7 @@
           "depth_pu": 0.0,
           "duration_s": 0.149,
           "verdict": "trips",
-          "trip_driver": "overshoot within 5 s recovery",
+          "trip_driver": "power recovery to 80%",
           "model_trip_driver": "server PSU undervoltage lockout",
           "model_trip_time_s": 0.5099
         }
@@ -98,7 +98,7 @@
           "depth_pu": 0.0,
           "duration_s": 0.149,
           "verdict": "trips",
-          "trip_driver": "overshoot within 5 s recovery",
+          "trip_driver": "power recovery to 80%",
           "model_trip_driver": "UPS DC bus collapse",
           "model_trip_time_s": 0.55
         }

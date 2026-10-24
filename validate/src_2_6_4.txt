@@ -1,0 +1,40 @@
+2.6.4Frequency Ride-Through Requirements for Large Computational Loads
+(1)A Customer that proposes to interconnect or maintains an interconnection of a Large Computational Load (LCL) with the ERCOT System shall ensure the LCL complies with the frequency ride-through requirements of this section, unless the Customer can demonstrate that:
+(a)The LCL was operational and consuming power from the ERCOT System or received written approval to energize from ERCOT on or before November 14, 2025; or
+(b)If the LCL is not co-located with a Generation Resource Facility, all required interconnection agreements or equivalent service extension agreements between the Interconnecting Large Load Entity (ILLE) and the applicable Transmission and/or Distribution Service Provider (TDSP) were executed on or before November 14, 2025; or
+(c)If the LCL is co-located with a Generation Resource Facility, all required interconnection agreements and/or equivalent service extension or other agreements with the Resource Entity, IE, and ILLE were executed on or before November 14, 2025.
+(d)For an LCL meeting the conditions in paragraph (b) or (c) above, the interconnecting Transmission Service Provider (TSP) received notice to proceed with the construction of all required interconnection Facilities and the interconnecting TSP and, if applicable, directly affected TSP(s) have received the financial security, applicable payments, and/or other agreements required to fund all required interconnection Facilities on or before November 14, 2025, and either of the following additional criteria below were met;
+(i)Its Large Load Interconnection Study (LLIS), as part of the interim Large Load interconnection process, has been completed and approved by ERCOT on or before November 14, 2025; or
+(ii)Both of the following conditions have been met:
+(A)ERCOT received a written attestation from the Authorized Representative of the interconnecting TDSP before December 31, 2026, stating that the LCL was not required to be in the interim Large Load interconnection process and that the LCL is expected to be energized between November 14, 2025, and December 31, 2026, and ERCOT provided written approval of the exemption; and
+(B)The LCL achieved Initial Energization by December 31, 2026.
+(2)An LCL that meets the exemption criteria of paragraph (1) above but makes a modification after November 14, 2025, that meets the criteria in paragraph (1)(b) of Planning Guide Section 9.2.1, Applicability of the Batch Zero Process, shall not be exempt from the frequency ride-through requirements.
+(3)An LCL shall ride through frequency disturbances of the magnitude and duration specified in Table A below, as measured at the LCL’s Service Delivery Point, or if the LCL is co-located with a Generation Resource or ESR, at the POIB of that Resource.  An LCL is not required to ride-through if it is either performing in accordance with its interconnecting TDSP’s UFLS program or providing an Ancillary Service that would require the LCL to trip or reduce consumption due to a frequency disturbance.
+Table A
+ROW: Frequency (f) in (Hz) | Minimum Ride-Through Time (seconds)
+ROW: f > 63.0 | May ride-through or trip
+ROW: 61.2 < f ≤ 63.0 | 299
+ROW: 58.8 ≤ f ≤ 61.2 | continuous
+ROW: 57.5 ≤ f < 58.8 | 299
+ROW: f < 57.5 | May ride-through or trip
+(4)Nothing in paragraph (3) above shall be interpreted to require an LCL to trip or transfer load to backup generation for frequency conditions beyond those for which ride-through is required.
+(5)If an LCL is consuming electric current from the grid at the time of the frequency disturbance, the LCL shall continue to consume electric current from the grid during frequency deviations requiring ride-through.  In addition, an LCL should continue to consume active power within 10% of the pre-disturbance level during frequency deviations requiring ride-through.
+(6)For frequency deviations outside the continuous operating range specified in Table A of paragraph (3) above, an LCL may implement an internal load-transfer or control-stabilization scheme such that the LCL facility returns to at least 90% of its pre-disturbance consumption level within two seconds, as measured from the LCL’s Service Delivery Point or POIB.
+(a)For LCLs composed of multiple internal devices, one load-transfer or control action per disturbance event per individual device shall be permitted.
+(7)If protection systems are installed and activated to trip the LCL, they shall enable the LCL to ride-through frequency conditions beyond those defined in paragraph (3) above to the maximum level the equipment allows, unless the protection systems are set to respond to an UFLS event or Ancillary Service obligation.
+(8)If frequency protection schemes are installed and activated to trip an LCL, they shall use filtered quantities or add sufficient time delays to prevent misoperations while providing the desired equipment protection.  Protection schemes shall not trip an LCL based on an instantaneous frequency measurement.
+(9)If ERCOT determines that an LCL has failed to ride through a frequency disturbance in accordance with any requirement in this Section 2.6.4:
+(a)The interconnecting TDSP shall provide available information to ERCOT to assist with ERCOT’s event analysis;
+(b)The Customer representing the LCL shall:
+(i)Investigate and determine the root cause of the frequency ride-through failure and report the results of the investigation to ERCOT within 90 days of ERCOT’s request;
+(ii)Develop a plan to ensure the LCL can meet the applicable ride-through performance requirements and submit the plan to ERCOT within 90 days of completion of paragraph (i) above; and
+(iii)Implement the plan upon ERCOT approval within 180 days of paragraph (ii) above unless ERCOT approves a longer timeline.
+(c)Notwithstanding the requirements of paragraph (b) above, if ERCOT determines that the operation of an LCL following a failure to comply with the requirements of this Section 2.6.4 poses an imminent risk to local or system reliability, ERCOT may require the LCL to disconnect from the ERCOT System and remain disconnected until the Customer representing the LCL has demonstrated to ERCOT’s satisfaction that the LCL can comply with the ride-through performance requirements of this Section.
+2.7System Voltage Profile and Operational Voltage Control
+2.7.1Introduction
+(1)The system Voltage Profile is the set of normally desired Voltage Set Points for those Generation Resources and Energy Storage Resources (ESRs) required to provide Voltage Support Service (VSS).
+(2)ERCOT coordinates and conducts studies with the Transmission Service Providers (TSPs) to determine and establish the Voltage Profile.
+(3)ERCOT and/or the Transmission Operators (TOs) adjust Voltage Set Points to maintain system voltages within established limits.
+2.7.2Maintaining Voltage Profile
+(1)ERCOT has the responsibility for monitoring and controlling the Voltage Profile and should use the following:
+(a)Operations Enginee

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import signal
 import sys
 from pathlib import Path
 
@@ -67,6 +68,9 @@ def _grade_dict(raw: dict, code=ERCOT):
         current=_trace(raw, "current"),
         pre_disturbance_power=raw["pre_disturbance_power"],
         max_normal_current=raw["max_normal_current"],
+        pre_disturbance_cooling_power=raw.get("pre_disturbance_cooling_power", 0.0),
+        cooling_tripped=bool(raw.get("cooling_tripped", False)),
+        transfer_scheme=bool(raw.get("transfer_scheme", False)),
     )
 
 
@@ -140,6 +144,9 @@ def cmd_simulate(args) -> int:
         traces.pre_disturbance_power,
         traces.max_normal_current,
         code=code,
+        pre_disturbance_cooling_power=traces.pre_disturbance_cooling_power,
+        cooling_tripped=traces.cooling_tripped,
+        transfer_scheme=traces.transfer_scheme,
     )
     name = (
         f"{facility.name}, sag to {args.depth:.2f} pu "
@@ -178,6 +185,9 @@ def cmd_sweep(args) -> int:
                 traces.pre_disturbance_power,
                 traces.max_normal_current,
                 code=code,
+                pre_disturbance_cooling_power=traces.pre_disturbance_cooling_power,
+                cooling_tripped=traces.cooling_tripped,
+                transfer_scheme=traces.transfer_scheme,
             )
             cells.append(
                 {
@@ -252,6 +262,9 @@ def cmd_repeated(args) -> int:
         traces.pre_disturbance_power,
         traces.max_normal_current,
         code=code,
+        pre_disturbance_cooling_power=traces.pre_disturbance_cooling_power,
+        cooling_tripped=traces.cooling_tripped,
+        transfer_scheme=traces.transfer_scheme,
     )
     name = (
         f"{facility.name}, {args.count} sags to {args.depth:.2f} pu of "
@@ -426,6 +439,12 @@ def cmd_run(args) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Piping into head or less closes the pipe early. Restore the default
+    # handler so that ends the process quietly instead of raising a
+    # traceback at the reader.
+    if hasattr(signal, "SIGPIPE"):
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] not in SUBCOMMANDS and not argv[0].startswith("-"):
         argv.insert(0, "grade")

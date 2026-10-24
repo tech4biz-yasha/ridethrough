@@ -15,6 +15,15 @@ MINIMAL = {
     "psu": {"hold_up_ms": 10, "current_limit_pu": 1.5},
 }
 
+# The same site with a realistic restart time. A facility whose PSUs hit
+# undervoltage lockout does not return in milliseconds, and restart_s is what
+# decides whether the two-second recovery obligation can be met at all.
+WEAK = {
+    "name": "Weak site, no UPS, 2 minute restart",
+    "rated_power_mw": 80,
+    "psu": {"hold_up_ms": 10, "current_limit_pu": 1.5, "restart_s": 120},
+}
+
 FULL = {
     "name": "Full site",
     "rated_power_mw": 120,
@@ -26,7 +35,7 @@ FULL = {
 }
 
 
-def graded(facility, depth=0.50, duration=0.5):
+def graded(facility, depth=0.40, duration=0.25):
     traces = simulate(facility, rectangular_sag(depth, duration), duration_s=5.0)
     return grade(
         traces.voltage,
@@ -94,7 +103,7 @@ def test_the_shipped_example_grades():
 
 
 def test_a_site_with_no_ups_trips_where_the_example_passes():
-    assert graded(facility_from_dict(MINIMAL)).verdict == TRIPS
+    assert graded(facility_from_dict(WEAK)).verdict == TRIPS
     assert graded(facility_from_file("examples/facility-example.json")).verdict == (
         RIDES_THROUGH
     )
@@ -113,8 +122,25 @@ def test_check_passes_a_good_site(capsys):
     assert "rides through" in capsys.readouterr().out
 
 
+def test_restart_time_decides_the_recovery_obligation():
+    """A finding worth pinning. Before 1 January 2028, 2.15(3)(c)(i) lets a
+    facility reduce consumption as much as necessary below 0.80 pu if its
+    equipment is not capable of proportional reduction. So dropping the whole
+    load during a deep sag is permitted, provided the facility stays
+    connected and is back to 90% within two seconds.
+
+    That makes restart time, not stored energy, the thing that decides the
+    outcome for an unprotected site at depth.
+    """
+    instant = graded(facility_from_dict(MINIMAL))
+    slow = graded(facility_from_dict(WEAK))
+    assert instant.verdict == RIDES_THROUGH
+    assert slow.verdict == TRIPS
+    assert slow.trip_driver == "power recovery"
+
+
 def test_check_fails_a_weak_site(tmp_path, capsys):
-    assert main(["check", write(tmp_path, MINIMAL)]) == 1
+    assert main(["check", write(tmp_path, WEAK)]) == 1
     out = capsys.readouterr().out
     assert "trips" in out
     assert "server PSU undervoltage lockout" in out
@@ -130,7 +156,8 @@ def test_check_writes_a_report(tmp_path):
     main(["check", "examples/facility-example.json", "--out", str(out)])
     report = json.loads(out.read_text())
     assert report["verdict"] in ("rides through", "trips")
-    assert "NOGRR 282" in report["source"]
+    assert "02-080126.docx" in report["source"]
+    assert "2.15" in report["source"]
     assert report["cells"]
 
 

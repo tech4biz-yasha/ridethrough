@@ -1,7 +1,7 @@
 {
   "code": "ERCOT NOGRR282, after 1 January 2028",
   "envelope": "ERCOT NOGRR282 voltage",
-  "source": "ERCOT, Large Electronic Load Ride-Through Requirements, NOGRR 282 and NPRR 1308, SPWG, 24 February 2026, Sections 2.6.4 and 2.14, Section 2.14(2)(c)(ii)",
+  "source": "ERCOT Nodal Operating Guide Section 2, file 02-080126.docx, effective 1 August 2026, Sections 2.6.4 and 2.15, with 2.15(3)(c)(ii)",
   "points": [
     {
       "depth_pu": 0.85,
@@ -24,11 +24,11 @@
       "duration_s": 0.25
     },
     {
-      "depth_pu": 0.2,
+      "depth_pu": 0.35,
       "duration_s": 0.25
     },
     {
-      "depth_pu": 0.15,
+      "depth_pu": 0.3,
       "duration_s": 0.15
     },
     {
@@ -59,8 +59,8 @@
         {
           "depth_pu": 0.75,
           "duration_s": 0.5,
-          "verdict": "trips",
-          "trip_driver": "current ceiling",
+          "verdict": "rides through",
+          "trip_driver": null,
           "model_trip_driver": null,
           "model_trip_time_s": null
         },
@@ -68,7 +68,7 @@
           "depth_pu": 0.5,
           "duration_s": 0.5,
           "verdict": "trips",
-          "trip_driver": "current ceiling",
+          "trip_driver": "power recovery",
           "model_trip_driver": "server PSU undervoltage lockout",
           "model_trip_time_s": 0.5399
         },
@@ -76,31 +76,31 @@
           "depth_pu": 0.45,
           "duration_s": 0.25,
           "verdict": "trips",
-          "trip_driver": "current ceiling",
+          "trip_driver": "power recovery",
           "model_trip_driver": "server PSU undervoltage lockout",
           "model_trip_time_s": 0.5307000000000001
         },
         {
-          "depth_pu": 0.2,
+          "depth_pu": 0.35,
           "duration_s": 0.25,
           "verdict": "trips",
-          "trip_driver": "current ceiling",
+          "trip_driver": "power recovery",
           "model_trip_driver": "server PSU undervoltage lockout",
-          "model_trip_time_s": 0.5142
+          "model_trip_time_s": 0.521
         },
         {
-          "depth_pu": 0.15,
+          "depth_pu": 0.3,
           "duration_s": 0.15,
           "verdict": "trips",
-          "trip_driver": "current ceiling",
+          "trip_driver": "power recovery",
           "model_trip_driver": "server PSU undervoltage lockout",
-          "model_trip_time_s": 0.5129
+          "model_trip_time_s": 0.5181
         },
         {
           "depth_pu": 0.0,
           "duration_s": 0.15,
-          "verdict": "rides through",
-          "trip_driver": null,
+          "verdict": "trips",
+          "trip_driver": "power recovery",
           "model_trip_driver": "server PSU undervoltage lockout",
           "model_trip_time_s": 0.5099
         }
@@ -150,20 +150,20 @@
           "model_trip_time_s": 0.5307000000000001
         },
         {
-          "depth_pu": 0.2,
+          "depth_pu": 0.35,
           "duration_s": 0.25,
           "verdict": "trips",
           "trip_driver": "stays connected",
           "model_trip_driver": "server PSU undervoltage lockout",
-          "model_trip_time_s": 0.5142
+          "model_trip_time_s": 0.521
         },
         {
-          "depth_pu": 0.15,
+          "depth_pu": 0.3,
           "duration_s": 0.15,
           "verdict": "trips",
           "trip_driver": "stays connected",
           "model_trip_driver": "server PSU undervoltage lockout",
-          "model_trip_time_s": 0.5129
+          "model_trip_time_s": 0.5181
         },
         {
           "depth_pu": 0.0,
@@ -197,8 +197,8 @@
         {
           "depth_pu": 0.75,
           "duration_s": 0.5,
-          "verdict": "rides through",
-          "trip_driver": null,
+          "verdict": "trips",
+          "trip_driver": "power recovery",
           "model_trip_driver": "UPS DC bus collapse",
           "model_trip_time_s": 1.0
         },
@@ -213,32 +213,32 @@
         {
           "depth_pu": 0.45,
           "duration_s": 0.25,
-          "verdict": "rides through",
-          "trip_driver": null,
+          "verdict": "trips",
+          "trip_driver": "power recovery",
           "model_trip_driver": "UPS DC bus collapse",
           "model_trip_time_s": 0.6087
         },
         {
-          "depth_pu": 0.2,
+          "depth_pu": 0.35,
           "duration_s": 0.25,
-          "verdict": "rides through",
-          "trip_driver": null,
+          "verdict": "trips",
+          "trip_driver": "power recovery",
           "model_trip_driver": "UPS DC bus collapse",
-          "model_trip_time_s": 0.5658000000000001
+          "model_trip_time_s": 0.5863
         },
         {
-          "depth_pu": 0.15,
+          "depth_pu": 0.3,
           "duration_s": 0.15,
-          "verdict": "rides through",
-          "trip_driver": null,
+          "verdict": "trips",
+          "trip_driver": "power recovery",
           "model_trip_driver": "UPS DC bus collapse",
-          "model_trip_time_s": 0.561
+          "model_trip_time_s": 0.5782
         },
         {
           "depth_pu": 0.0,
           "duration_s": 0.15,
-          "verdict": "rides through",
-          "trip_driver": null,
+          "verdict": "trips",
+          "trip_driver": "power recovery",
           "model_trip_driver": "UPS DC bus collapse",
           "model_trip_time_s": 0.55
         }
@@ -288,7 +288,7 @@
           "model_trip_time_s": null
         },
         {
-          "depth_pu": 0.2,
+          "depth_pu": 0.35,
           "duration_s": 0.25,
           "verdict": "rides through",
           "trip_driver": null,
@@ -296,7 +296,7 @@
           "model_trip_time_s": null
         },
         {
-          "depth_pu": 0.15,
+          "depth_pu": 0.3,
           "duration_s": 0.15,
           "verdict": "rides through",
           "trip_driver": null,
@@ -357,7 +357,7 @@
           "model_trip_time_s": null
         },
         {
-          "depth_pu": 0.2,
+          "depth_pu": 0.35,
           "duration_s": 0.25,
           "verdict": "rides through",
           "trip_driver": null,
@@ -365,7 +365,7 @@
           "model_trip_time_s": null
         },
         {
-          "depth_pu": 0.15,
+          "depth_pu": 0.3,
           "duration_s": 0.15,
           "verdict": "rides through",
           "trip_driver": null,
@@ -426,7 +426,7 @@
           "model_trip_time_s": null
         },
         {
-          "depth_pu": 0.2,
+          "depth_pu": 0.35,
           "duration_s": 0.25,
           "verdict": "rides through",
           "trip_driver": null,
@@ -434,7 +434,7 @@
           "model_trip_time_s": null
         },
         {
-          "depth_pu": 0.15,
+          "depth_pu": 0.3,
           "duration_s": 0.15,
           "verdict": "rides through",
           "trip_driver": null,

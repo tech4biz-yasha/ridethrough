@@ -13,6 +13,11 @@ as seconds at rated power.
       "rated_power_mw": 120,
       "cooling_fraction": 0.25,
       "psu": {"hold_up_ms": 10, "current_limit_pu": 1.5, "restart_s": 120},
+      // restart_s is load-bearing. It is how long the IT load stays off
+      // after the PSUs hit undervoltage lockout. It defaults to 0, which
+      // means an instantaneous restart and is optimistic: servers that lose
+      // their power supplies do not return in milliseconds. Give it a real
+      // figure or the recovery obligation will pass for the wrong reason.
       "ups": {"hold_up_ms": 50, "current_limit_pu": 1.2},
       "battery": {"minutes": 5},
       "protection": {"undervoltage_pickup_pu": 0.85, "delay_s": 0.1},
@@ -47,6 +52,11 @@ def _stage(name: str, raw: dict[str, Any], nominal: float) -> Stage:
         nominal_dc_volts=float(raw.get("nominal_dc_volts", nominal)),
         cutoff_dc_volts=float(cutoff),
         current_limit_pu=float(raw.get("current_limit_pu", 1.5)),
+        recharge_limit_pu=(
+            float(raw["recharge_limit_pu"])
+            if raw.get("recharge_limit_pu") is not None
+            else None
+        ),
         restart_seconds=float(raw.get("restart_s", 0.0)),
     )
 
@@ -89,6 +99,12 @@ def facility_from_dict(raw: dict[str, Any]) -> Facility:
         cooling_fraction=float(raw.get("cooling_fraction", 0.25)),
         cooling_tau_seconds=float(raw.get("cooling_tau_s", 20.0)),
         reduces_load_with_voltage=bool(raw.get("reduces_load_with_voltage", False)),
+        cooling_trips_below_pu=(
+            float(raw["cooling_trips_below_pu"])
+            if raw.get("cooling_trips_below_pu") is not None
+            else None
+        ),
+        transfer_scheme=bool(raw.get("transfer_scheme", False)),
         sag_count_trip=raw.get("sag_count_trip"),
         sag_count_window_s=float(raw.get("sag_count_window_s", 60.0)),
         notes=str(raw.get("notes", "")),
