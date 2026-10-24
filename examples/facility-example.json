@@ -1,0 +1,11 @@
+{
+  "name": "Example site, 120 MW, UPS with five minutes of battery",
+  "rated_power_mw": 120,
+  "cooling_fraction": 0.25,
+  "psu": {"hold_up_ms": 10, "current_limit_pu": 1.5, "restart_s": 120},
+  "ups": {"hold_up_ms": 50, "current_limit_pu": 1.2},
+  "battery": {"minutes": 5},
+  "protection": {"undervoltage_pickup_pu": 0.0, "delay_s": 0.0},
+  "reduces_load_with_voltage": false,
+  "notes": "Illustration only. Replace every number with your own."
+}

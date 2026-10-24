@@ -1,0 +1,55 @@
+name: Submit a facility
+description: Have a facility design graded and, if you want, published in the table.
+title: "facility: "
+labels: ["facility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You do not need to open a pull request. Paste the description and we
+        reproduce it here.
+
+        What gets published: the archetype shape, the verdict at each corner,
+        and which element gave up first. What does not: your site name, your
+        location, your operator, or anything that identifies you, unless you
+        say in this issue that you want it named.
+
+        Nothing is published until you confirm the reproduced numbers.
+  - type: input
+    id: label
+    attributes:
+      label: How should the row be labelled
+      description: A shape, not a site. For example "double conversion UPS, 90 s battery".
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Facility description
+      description: The JSON. See examples/facility-example.json for the shape.
+      render: json
+    validations:
+      required: true
+  - type: dropdown
+    id: code
+    attributes:
+      label: Which code
+      options: ["ercot", "ercot-2028", "energinet", "all of them"]
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Where the numbers came from
+      description: Datasheet, commissioning test, vendor statement or estimate. Say which.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: These numbers describe a design, and I have said above where each came from.
+          required: true
+        - label: I understand this is a model, not a measurement, and not a compliance approval.
+          required: true

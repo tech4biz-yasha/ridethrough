@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+title: "ridethrough: an open grader for data centre voltage ride-through claims"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: Khandelwal
+    given-names: Yasha
+    email: yasha.khandelwal@tech4biz.io
+repository-code: "https://github.com/tech4biz-yasha/ridethrough"
+license: MIT
+version: 0.4.0
+date-released: "2026-10-24"

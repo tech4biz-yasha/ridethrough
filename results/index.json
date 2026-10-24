@@ -1,0 +1,9 @@
+{
+  "generated_by": "ridethrough 0.4.0",
+  "scorecards": {
+    "energinet": "results/scorecard-energinet.json",
+    "ercot": "results/scorecard-ercot.json",
+    "ercot-2028": "results/scorecard-ercot-2028.json"
+  },
+  "note": "Modelled, not measured. Archetypes are configurations, not sites."
+}

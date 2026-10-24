@@ -1,0 +1,42 @@
+name: "ridethrough"
+description: "Grade a data centre facility description against a grid code ride-through envelope."
+branding:
+  icon: "activity"
+  color: "blue"
+inputs:
+  facility:
+    description: "Path to the facility description JSON."
+    required: true
+  code:
+    description: "Grid code: ercot, ercot-2028 or energinet."
+    required: false
+    default: "ercot"
+  out:
+    description: "Where to write the report JSON. Leave empty to skip."
+    required: false
+    default: ""
+  fail-on-trip:
+    description: "Fail the step if any corner trips."
+    required: false
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: Install ridethrough
+      shell: bash
+      run: pip install --quiet "${{ github.action_path }}"
+    - name: Grade the facility
+      shell: bash
+      run: |
+        set -o pipefail
+        ARGS=(check "${{ inputs.facility }}" --code "${{ inputs.code }}")
+        if [ -n "${{ inputs.out }}" ]; then ARGS+=(--out "${{ inputs.out }}"); fi
+        set +e
+        ridethrough "${ARGS[@]}"
+        STATUS=$?
+        set -e
+        if [ "${{ inputs.fail-on-trip }}" = "true" ] && [ "$STATUS" -eq 1 ]; then
+          echo "::error::facility trips at one or more corners of ${{ inputs.code }}"
+          exit 1
+        fi
+        if [ "$STATUS" -ge 2 ]; then exit "$STATUS"; fi
