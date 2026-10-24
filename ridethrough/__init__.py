@@ -19,6 +19,8 @@ from .facility import (
     Protection,
     RunTraces,
     Stage,
+    dominion_july_2024,
+    reclosing_sequence,
     rectangular_sag,
     repeated_sags,
     simulate,
@@ -37,7 +39,7 @@ from .grade import (
 )
 from .spec import facility_from_dict, facility_from_file
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 __all__ = [
     "ARCHETYPES",
@@ -50,7 +52,9 @@ __all__ = [
     "GridCode",
     "RecoveryPoint",
     "VoltageProfile",
+    "dominion_july_2024",
     "excursions",
+    "reclosing_sequence",
     "facility_from_dict",
     "facility_from_file",
     "repeated_sags",

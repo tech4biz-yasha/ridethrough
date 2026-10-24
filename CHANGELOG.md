@@ -1,5 +1,54 @@
 # Changelog
 
+## 0.5.0 (2026-10-24)
+
+A bug fix that changes results, and the reclosing patterns that found it.
+
+**The fix.** Until this release each stage drew only what the load demanded,
+so an energy store that drained during a sag never refilled. A facility
+therefore lost a little more of its store at every sag and collapsed after a
+few, however much time passed in between. A real rectifier draws above the
+load after a sag to rebuild its bus, which is what lets a facility survive a
+second sag at all. Both stages now refill, bounded by the current limit.
+
+Single-sag results are unchanged, because during a sag there is no headroom
+to refill with. Every multi-sag result before 0.5.0 was wrong, and the
+`ups` archetype under a train of sags was wrong in the direction of failing
+when it should not have.
+
+104 tests passed over this bug. None of them measured what happened between
+two disturbances. `tests/test_recharge.py` now does.
+
+**New.**
+
+- `reclosing_sequence(depth, duration, times)` places sags at given times,
+  because a recloser does not fire at a fixed interval.
+- `dominion_july_2024()` builds the sag pattern reported for the 10 July 2024
+  Dominion event: 0.683 pu, 75 ms, six sags, reclosing at 20 and 80 seconds.
+  Transcribed from Dominion Energy, "An Overview of Data Centers Response to
+  the Recent Large Load Events in Dominion Energy", Narges Ghiasi and
+  Francisco A Zelaya, presented to the ERCOT Large Load Working Group on
+  15 October 2026. The deck gives the count, magnitude, duration and
+  reclosing delays. It does not give the individual sag timestamps, so their
+  placement is ours.
+- `ridethrough reclosing` runs every archetype against that pattern.
+- 116 tests.
+
+**Two things the pattern showed, both pinned as tests.**
+
+At 0.683 pu for 75 ms, stored energy is not the failure mechanism. The sag is
+too shallow and too short to drain a UPS bus that refills between shots. A
+facility that fails this pattern fails on something else.
+
+What it fails on instead is either a current limit above the 125% ceiling, or
+a scheme that counts sags. The published pattern puts four sags inside one
+minute and two more well outside it, so a counter set at four trips on the
+fourth sag and a counter set at five never trips at all. Where the window
+falls decides the outcome.
+
+Neither of these reproduces the behaviour of any named facility, and nothing
+in this repository is a measurement.
+
 ## 0.4.0 (2026-10-24)
 
 The release shape. An operator can now grade their own site without editing

@@ -182,24 +182,71 @@ def repeated_sags(
     interval_s: float,
     start_s: float = 0.5,
 ):
-    """A train of identical sags, as reclosing produces.
-
-    The July 2024 Eastern Interconnection event was reported as six voltage
-    violations over 82 seconds, each 42 to 66 ms long and between 0.24 and
-    0.40 pu, in "Enhancing Data Center Low-Voltage Ride-Through",
-    arXiv 2510.03867.
-    """
+    """A train of identical sags at a fixed interval."""
     if count < 1:
         raise ValueError("count must be at least 1")
+    times = [start_s + i * interval_s for i in range(count)]
+    return reclosing_sequence(depth_pu, duration_s, times)
+
+
+def reclosing_sequence(
+    depth_pu: float,
+    duration_s: float,
+    sag_times_s: list[float],
+):
+    """Sags at the times given, which is what reclosing actually produces.
+
+    A recloser does not fire at a fixed interval. It fires instantaneously,
+    then after its first delay, then after its second. The gaps are uneven
+    and the uneven gaps are the point, because a scheme that counts sags
+    inside a window behaves differently depending on where the window falls.
+    """
+    if not sag_times_s:
+        raise ValueError("give at least one sag time")
+    times = sorted(sag_times_s)
 
     def profile(t: float) -> float:
-        for i in range(count):
-            begin = start_s + i * interval_s
+        for begin in times:
             if begin <= t < begin + duration_s:
                 return depth_pu
         return 1.0
 
     return profile
+
+
+def dominion_july_2024(depth_pu: float = 0.683, duration_s: float = 0.075):
+    """The sag pattern reported for the 10 July 2024 Dominion event.
+
+    Figures are transcribed from Dominion Energy, "An Overview of Data
+    Centers Response to the Recent Large Load Events in Dominion Energy",
+    Narges Ghiasi and Francisco A Zelaya, presented to the ERCOT Large Load
+    Working Group on 15 October 2026. That deck reports six voltage sags for
+    most data centres, a minimum sag magnitude of 68.3% and a maximum sag
+    duration of 75 ms, and describes the sequence as the initial fault and
+    instantaneous reclosing, then reclosing at 20 seconds and 80 seconds.
+
+    The six sag times below are our reading of that description: a pair at
+    each stage, the fault and the reclose onto it. The deck gives the count,
+    the magnitude, the duration and the reclosing delays. It does not give
+    the individual sag timestamps, so the pairing is ours and is the one
+    thing in this scenario that is not transcribed.
+
+    This is the published sag pattern, not a model of any named facility.
+    Nothing here reproduces the behaviour of a specific data centre.
+    """
+    start = 0.5
+    return reclosing_sequence(
+        depth_pu,
+        duration_s,
+        [
+            start,
+            start + 0.5,
+            start + 20.0,
+            start + 20.5,
+            start + 80.0,
+            start + 80.5,
+        ],
+    )
 
 
 def simulate(
@@ -321,7 +368,14 @@ def simulate(
             if psu_input_pu > 0
             else 0.0
         )
-        psu_draw = min(it_demand, psu_available)
+        # Above the load, whatever headroom the current limit leaves goes
+        # into refilling the store. A rectifier draws more than the load
+        # after a sag to rebuild its bus, which is what lets a facility
+        # survive a second sag at all.
+        psu_refill = min(
+            max(0.0, psu_available - it_demand), (psu_full - psu_energy) / dt
+        )
+        psu_draw = min(psu_available, it_demand + psu_refill)
         psu_energy += (psu_draw - it_demand) * dt
         psu_energy = min(psu_full, max(0.0, psu_energy))
 
@@ -351,8 +405,12 @@ def simulate(
             ups_available = (
                 v * facility.ups.current_limit_pu * rated if connected else 0.0
             )
-            ups_draw = min(facility_demand, ups_available)
-            shortfall = facility_demand - ups_draw
+            ups_refill = min(
+                max(0.0, ups_available - facility_demand),
+                (ups_full - ups_energy) / dt,
+            )
+            ups_draw = min(ups_available, facility_demand + ups_refill)
+            shortfall = facility_demand - min(facility_demand, ups_draw)
 
             battery_supply = 0.0
             if facility.battery and shortfall > 0.0:

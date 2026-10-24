@@ -24,13 +24,27 @@ from pathlib import Path
 from . import __version__
 from .archetypes import ARCHETYPES
 from .codes import CODES, ERCOT
-from .facility import rectangular_sag, repeated_sags, simulate
+from .facility import (
+    dominion_july_2024,
+    rectangular_sag,
+    repeated_sags,
+    simulate,
+)
 from .grade import ERROR, NOT_REQUIRED, RIDES_THROUGH, TRIPS, Trace, grade
 from .spec import facility_from_file
 
 EXIT_CODES = {RIDES_THROUGH: 0, TRIPS: 1, NOT_REQUIRED: 2, ERROR: 3}
 MARKS = {True: "pass", False: "FAIL", None: "n/a "}
-SUBCOMMANDS = {"grade", "simulate", "sweep", "repeated", "codes", "run", "check"}
+SUBCOMMANDS = {
+    "grade",
+    "simulate",
+    "sweep",
+    "repeated",
+    "codes",
+    "run",
+    "check",
+    "reclosing",
+}
 
 # The sweep points are derived from whichever envelope is in play, not
 # chosen by hand. Each one is a flat sag held for exactly as long as that
@@ -252,6 +266,42 @@ def cmd_repeated(args) -> int:
     return EXIT_CODES[result.verdict]
 
 
+def cmd_reclosing(args) -> int:
+    """Every archetype against a published reclosing pattern."""
+    code = CODES[args.code]
+    profile = dominion_july_2024(args.depth, args.duration)
+    print("pattern: 10 July 2024 Dominion event as reported to ERCOT LLWG")
+    print(f"         {args.depth:.3f} pu for {args.duration * 1000:.0f} ms, "
+          f"six sags, reclosing at 20 s and 80 s")
+    print(f"code:    {code.name}")
+    print()
+    worst = 0
+    for key in sorted(ARCHETYPES):
+        traces = simulate(
+            ARCHETYPES[key](args.rated_power), profile, duration_s=120.0
+        )
+        result = grade(
+            traces.voltage,
+            traces.connected,
+            traces.active_power,
+            traces.current,
+            traces.pre_disturbance_power,
+            traces.max_normal_current,
+            code=code,
+        )
+        when = f"at {traces.trip_time:.1f} s" if traces.trip_time else ""
+        physics = f"   {traces.trip_driver} {when}" if traces.trip_driver else ""
+        print(f"  {key:24s} {result.verdict:14s} "
+              f"{result.trip_driver or '':18s}{physics}")
+        worst = max(worst, EXIT_CODES[result.verdict])
+    print()
+    print("Modelled, not measured. The sag magnitude, duration, count and")
+    print("reclosing delays are published. The individual sag timestamps are")
+    print("not, so their placement is ours. Nothing here reproduces the")
+    print("behaviour of any named facility.")
+    return worst
+
+
 def cmd_codes(args) -> int:
     for key, code in CODES.items():
         print(f"{key}")
@@ -430,6 +480,15 @@ def main(argv: list[str] | None = None) -> int:
 
     p_codes = subs.add_parser("codes", help="show the codes and their values")
     p_codes.set_defaults(func=cmd_codes)
+
+    p_rec = subs.add_parser(
+        "reclosing", help="every archetype against a published reclosing pattern"
+    )
+    p_rec.add_argument("--depth", type=float, default=0.683)
+    p_rec.add_argument("--duration", type=float, default=0.075)
+    p_rec.add_argument("--rated-power", type=float, default=50e6)
+    p_rec.add_argument("--code", choices=sorted(CODES), default="ercot")
+    p_rec.set_defaults(func=cmd_reclosing)
 
     p_check = subs.add_parser(
         "check", help="grade your own facility, described in JSON"

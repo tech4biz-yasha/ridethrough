@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/tech4biz-yasha/ridethrough/actions/workflows/ci.yml/badge.svg)](https://github.com/tech4biz-yasha/ridethrough/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23615237.svg)](https://doi.org/10.5281/zenodo.23615237)
 
 An open grader for data centre voltage ride-through claims.
 
@@ -136,6 +135,46 @@ A site with a scheme that transfers after four sags in a minute passes every
 single-sag test and fails the train. That is the behaviour ERCOT Section
 2.14(2)(6) now forbids, reproduced from first principles rather than quoted
 from an incident report.
+
+## Reclosing
+
+A recloser does not fire once. It fires instantaneously, then after its
+first delay, then after its second. That is the pattern facilities actually
+see, and it is the one they actually fail.
+
+```
+ridethrough reclosing
+```
+
+```
+pattern: 10 July 2024 Dominion event as reported to ERCOT LLWG
+         0.683 pu for 75 ms, six sags, reclosing at 20 s and 80 s
+code:    ERCOT NOGRR282
+
+  no-ups                   trips          current ceiling
+  no-ups-relay             trips          current ceiling
+  ups                      rides through
+  ups-battery              rides through
+  ups-battery-reduction    rides through
+  ups-sag-counter          trips          stays connected      sag-counting scheme trip at 21.0 s
+```
+
+The magnitude, duration, count and reclosing delays are transcribed from
+Dominion Energy, *An Overview of Data Centers Response to the Recent Large
+Load Events in Dominion Energy*, Narges Ghiasi and Francisco A Zelaya,
+presented to the ERCOT Large Load Working Group on 15 October 2026. The deck
+does not give the individual sag timestamps, so their placement is ours.
+
+Two things this showed, both pinned as tests. At that magnitude and duration
+stored energy is not the failure mechanism, because the sag is too shallow
+and too short to drain a bus that refills between shots. What fails instead
+is either a current limit above the 125% ceiling or a scheme that counts
+sags, and for the counting scheme the answer depends on where the window
+falls: the pattern puts four sags inside one minute and two more well
+outside it, so a counter set at four trips on the fourth and a counter set
+at five never trips at all.
+
+Nothing here reproduces the behaviour of any named facility.
 
 ## The codes
 
@@ -291,7 +330,7 @@ ridethrough/      the package
   spec.py         build a facility from JSON
   cli.py          check, run, sweep, simulate, repeated, grade, codes
 docs/METHOD.md    the method, statement by statement
-tests/            104 tests
+tests/            116 tests
 results/          one generated scorecard per code
 examples/         a facility description and two hand-written runs
 action.yml        the GitHub Action
@@ -306,10 +345,6 @@ python -m pytest -q
 
 ## Cite
 
-Khandelwal, Yasha. *ridethrough: an open grader for data centre
-voltage ride-through claims*, version 0.4.0, 2026.
-DOI [10.5281/zenodo.23615237](https://doi.org/10.5281/zenodo.23615237)
-
-Machine-readable metadata is in `CITATION.cff`.
+See `CITATION.cff`.
 
 MIT. Copyright 2026 Yasha Khandelwal.
