@@ -14,13 +14,17 @@ and which piece of equipment gave up first.
 
 AI data centres protect themselves. When grid voltage dips for a fraction of
 a second, their protection trips and they disconnect. On 22 July 2026 roughly
-3.8 GW of data centre load in Dominion's territory dropped off after a fault
-that was cleared exactly as designed. Four weeks later FERC ordered NERC to
-file reliability standards for computational loads by the end of the year.
+3.8 GW of data centre load in Dominion's territory moved off the grid onto
+backup power after a transmission fault that was cleared normally. Six days
+earlier, on 16 July, FERC had ordered NERC to file reliability standards for
+computational loads by the end of the year.
 
-From 2027, large computational load sites in North America have to show a
-system operator that they ride through. ERCOT already requires it. Model
-quality testing, converter model validation, the lot.
+ERCOT already requires ride-through. Since 1 August 2026, Nodal Operating
+Guide Section 2.15 has set voltage ride-through requirements for Large
+Computational Loads. NERC's first computational load standards, adopted by
+its Board in October and now with FERC, require ride-through data in each
+site's planning model and a check that the model matches the installed
+equipment.
 
 There is no open, reproducible way to check whether a submitted claim holds
 up. This is that check.
