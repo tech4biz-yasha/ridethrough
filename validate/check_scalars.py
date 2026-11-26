@@ -1,4 +1,5 @@
-"""PASS 3 - each constant must be justified by a sentence in the source."""
+"""PASS 3 - each Section 2.15 and 2.6.4 constant must be justified by a
+sentence in the source."""
 import sys
 
 sys.path.insert(0, ".")
@@ -34,6 +35,10 @@ CLAIMS = [
      "minimum of six voltage sags or swells", "2.15(7)"),
     (E.ERCOT_MIN_SAGS_WINDOW_SECONDS, 90.0, SRC_V,
      "within a 90-second period", "2.15(7)"),
+    (E.ERCOT_FREQUENCY_POWER_BAND, 0.10, SRC_F,
+     "within 10% of the pre-disturbance level", "2.6.4(5)"),
+    (E.ERCOT_FREQUENCY_TRANSFER_SECONDS, 2.0, SRC_F,
+     "pre-disturbance consumption level within two seconds", "2.6.4(6)"),
 ]
 
 ok = True

@@ -7,6 +7,19 @@
 > recorded as they were at the time and several of them are wrong. The
 > approved values are in 0.6.0 and in `validate/`.
 
+## Unreleased
+
+- `validate/check_scalars.py` now also checks the two Section 2.6.4 scalar
+  constants, so it covers all fifteen constants taken from Sections 2.15 and
+  2.6.4. At 0.6.0 it covered the thirteen from Section 2.15.
+- The documentation said the script asserts each constant. It now says what
+  the two scripts cover: the ERCOT tables and the Section 2.15 and 2.6.4
+  constants. The two definition thresholds from Nodal Protocols Section 2.1
+  and the Energinet values are not covered by the scripts.
+- README: corrected the date of the FERC order to 16 July 2026, six days
+  before the 22 July event, and the description of what the ERCOT and NERC
+  rules require.
+
 ## 0.6.0 (2026-10-24)
 
 Rebuilt against the approved rule, and two false passes removed.

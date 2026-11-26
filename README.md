@@ -228,9 +228,11 @@ python validate/check_scalars.py
 
 The first parses Table A out of the rule text in `validate/` and asserts
 this package returns the stated minimum ride-through time at both edges of
-every band. The second asserts each constant against a quoted sentence from
-the source, and confirms the superseded draft values are absent. Both run in
-CI. `validate/coverage.md` lists every clause of both sections and marks it
+every band. The second asserts each ERCOT constant from Sections 2.15 and
+2.6.4 against a quoted sentence from the source, and confirms the superseded
+draft values are absent. Both run in CI. The two definition thresholds from
+Nodal Protocols Section 2.1 and the Energinet values are not covered by
+these scripts. `validate/coverage.md` lists every clause of both sections and marks it
 graded or out of scope.
 
 ## What is not graded, and why

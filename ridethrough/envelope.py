@@ -10,8 +10,10 @@ Energinet values are transcribed from Energinet Technical Regulation 3.4.3,
 Revision 1, effective 1 November 2024.
 
 Nothing in this file is inferred. Every number appears in one of those
-documents, and `validate/check_scalars.py` asserts each one against a quoted
-sentence from the source.
+documents. `validate/check_tables.py` and `validate/check_scalars.py` assert
+the ERCOT tables and each constant from Sections 2.15 and 2.6.4 against the
+rule text in `validate/`. The definition thresholds and the Energinet values
+are not covered by those scripts.
 """
 
 from __future__ import annotations

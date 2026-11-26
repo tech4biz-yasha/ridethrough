@@ -36,7 +36,8 @@ Large Computational Load.
 
 A presentation about a rule is not the rule. That is why every value here
 names a published document and a clause, and why `validate/check_scalars.py`
-asserts each constant against a quoted sentence from the source.
+asserts each ERCOT constant from Sections 2.15 and 2.6.4 against a quoted
+sentence from the source.
 
 ---
 
