@@ -420,7 +420,7 @@ ridethrough/      the package
   cli.py          check, run, sweep, simulate, repeated, reclosing, grade, codes
 validate/         the rule text, and scripts that check the package against it
 docs/METHOD.md    the method, statement by statement
-tests/            202 tests
+tests/            203 tests
 results/          one generated scorecard per code
 examples/         a facility description and two hand-written runs
 action.yml        the GitHub Action
@@ -436,8 +436,10 @@ python -m pytest -q
 ## Cite
 
 Khandelwal, Yasha. *ridethrough: an open grader for data centre
-voltage ride-through claims*, version 0.6.0, 2026.
-DOI [10.5281/zenodo.23622860](https://doi.org/10.5281/zenodo.23622860)
+voltage ride-through claims*, version 0.6.1, 2026.
+
+Version 0.6.0 is archived at DOI
+[10.5281/zenodo.23622860](https://doi.org/10.5281/zenodo.23622860).
 
 Machine-readable metadata is in `CITATION.cff`.
 

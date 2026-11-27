@@ -48,7 +48,7 @@ from .grade import (
 )
 from .spec import facility_from_dict, facility_from_file
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
 
 __all__ = [
     "ARCHETYPES",

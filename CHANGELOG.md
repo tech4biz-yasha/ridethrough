@@ -7,7 +7,10 @@
 > recorded as they were at the time and several of them are wrong. The
 > approved values are in 0.6.0 and in `validate/`.
 
-## Unreleased
+## 0.6.1 (2026-11-27)
+
+Corrections to the documentation and two more source checks. No rule value
+and no grading behaviour changed.
 
 - `validate/check_scalars.py` now also checks the two Section 2.6.4 scalar
   constants, so it covers all fifteen constants taken from Sections 2.15 and
@@ -19,6 +22,7 @@
 - README: corrected the date of the FERC order to 16 July 2026, six days
   before the 22 July event, and the description of what the ERCOT and NERC
   rules require.
+- README: the test count now reads 203. The 0.6.0 notes below say 202.
 
 ## 0.6.0 (2026-10-24)
 
