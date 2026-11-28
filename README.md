@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/tech4biz-yasha/ridethrough/actions/workflows/ci.yml/badge.svg)](https://github.com/tech4biz-yasha/ridethrough/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23622860.svg)](https://doi.org/10.5281/zenodo.23622860)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24616974.svg)](https://doi.org/10.5281/zenodo.24616974)
 
 An open grader for data centre voltage ride-through claims.
 
@@ -437,6 +437,7 @@ python -m pytest -q
 
 Khandelwal, Yasha. *ridethrough: an open grader for data centre
 voltage ride-through claims*, version 0.6.1, 2026.
+DOI [10.5281/zenodo.24616974](https://doi.org/10.5281/zenodo.24616974)
 
 Version 0.6.0 is archived at DOI
 [10.5281/zenodo.23622860](https://doi.org/10.5281/zenodo.23622860).
