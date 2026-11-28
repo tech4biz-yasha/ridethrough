@@ -1,0 +1,66 @@
+# Extract from NERC Reliability Standard PRC-029-2,
+# "Frequency and Voltage Ride-through Requirements for Inverter-Based
+# Resources". The standard is published by NERC and is NERC's text:
+# https://www.nerc.com/globalassets/standards/reliability-standards/prc/prc-029-2.pdf
+#
+# Read from the 18 page PDF downloaded on 28 November 2026,
+# sha256 6dc95162c40d62eec980757818aeca8e735002aeeb2bc4ce48d2430a7da67753
+#
+# Each line below is a run of text from the PDF's text layer, taken with
+# `pdftotext -layout` and with whitespace collapsed. "P14:" means page 14.
+# Stray numbers such as "18" or "3;" are the standard's footnote markers.
+# Only the tables and a selection of sentences are kept. Read the standard
+# itself for everything else.
+#
+# `python validate/check_prc029.py --pdf prc-029-2.pdf` checks every line
+# here against a copy of the PDF.
+P1: 4.2.2. Non-Bulk Electric System Inverter-Based Resources that either have or contribute to an aggregate nameplate capacity of greater than or equal to 20 MVA, connected through a system designed primarily for delivering such capacity to a common point of connection at a voltage greater than or equal to 60 kV.
+P2: The instantaneous positive sequence voltage phase angle change is more than 25 electrical degrees at the high-side of the main power transformer and is initiated by a non-fault switching event on the transmission system 3; or
+P2: The Volts per Hz (V/Hz) at the high-side of the main power transformer exceed 1.1 per unit for longer than 45 seconds or exceed 1.18 per unit for longer than 2 seconds.
+P3: 2.1.3. Prioritize Real Power or Reactive Power when the voltage is less than 0.95 per unit
+P4: 2.3.1. If an Inverter-Based Resource enters current blocking mode, it shall restart current exchange in less than or equal to five cycles of positive sequence voltage returning to a continuous operation region or mandatory operation region.
+P4: 2.5. Each Inverter-Based Resource shall restore Real Power output to the pre- disturbance or available level 7 (whichever is lesser) within 1.0 second
+P5: frequency (RoCoF) 9 magnitude is less than or equal to 5 Hz/second
+P5: 9 Rate of change of frequency (RoCoF) is calculated as the average rate of change for multiple calculated system frequencies for a time period of greater than or equal to 0.1 second. RoCoF is not calculated during the fault occurrence and clearance.
+P14: Table 1: Voltage Ride-through Requirements for AC-Connected Wind Inverter-Based Resources 16
+P14: > 1.20 N/A 18 N/A
+P14: ≥ 1.10 Mandatory Operation Region 1.0
+P14: > 1.05 Continuous Operation Region 1800
+P14: ≤ 1.05 and ≥ 0.90 Continuous Operation Region Continuous
+P14: < 0.90 Mandatory Operation Region 3.00
+P14: < 0.70 Mandatory Operation Region 2.50
+P14: < 0.50 Mandatory Operation Region 1.20
+P14: < 0.25 Mandatory Operation Region 0.16
+P14: < 0.10 Permissive Operation Region 0.16
+P14: Table 2: Voltage Ride-through Requirements for All Other Inverter-Based Resources
+P14: > 1.20 N/A 20 N/A
+P14: > 1.10 Mandatory Operation Region 1.0
+P14: > 1.05 Continuous Operation Region 1800
+P14: ≤ 1.05 and ≥ 0.90 Continuous Operation Region Continuous
+P14: < 0.90 Mandatory Operation Region 6.00
+P14: < 0.70 Mandatory Operation Region 3.00
+P14: < 0.50 Mandatory Operation Region 1.20
+P14: < 0.25 Mandatory Operation Region 0.32
+P14: < 0.10 Permissive Operation Region 0.32
+P14: 18 These conditions are referred to as the “may Ride-through zone.”
+P14: 20 These conditions are referred to as the “may Ride-through zone.”
+P15: 1. Table 1 applies to type 3 and type 4 wind Inverter-Based Resources or hybrid Inverter- Based Resources that include wind, unless connected via a dedicated Voltage Source Converter - High Voltage Direct Current (VSC-HVDC) transmission facility.
+P15: 2. Table 2 applies to all other Inverter-Based Resource types not covered in Table 1; including, but not limited to, the following facilities: a. Inverter-Based Resources, regardless of their energy resource, interconnecting via a dedicated VSC-HVDC transmission facility. b. Other Inverter-Based Resource or hybrid Inverter-Based Resources consisting of photovoltaic (PV) and BESS.
+P15: 4. The voltage base for per unit calculation is the nominal phase-to-ground or phase-to- phase transmission system voltage unless otherwise defined by the Planning Coordinator, Transmission Planner, or Transmission Owner.
+P15: 5. The applicable voltage for Tables 1 and 2 is identified as the voltage max/min of phase- to-neutral or phase-to-phase fundamental root mean square (RMS) voltage at the high- side of the main power transformer.
+P15: 6. Tables 1 and 2 are only applicable when the frequency is within the “must Ride-through zone” as specified in Figure 1 of Attachment 2.
+P15: 7. At any given voltage value, each Inverter-Based Resources shall Ride-through unless the time duration at that voltage has exceeded the specified minimum Ride-through time duration. If the voltage is continuously varying over time, it is necessary to add the duration within each band of Tables 1 and 2 over any 10 second time period.
+P15: 8. The specified duration of the mandatory operation regions and the permissive operation regions in Tables 1 and 2 is cumulative over one or more disturbances within any 10 second time period.
+P15: 9. The Inverter-Based Resources may trip for more than four deviations of the applicable voltage at the high-side of the main power transformer outside of the continuous operation region within any 10 second time period.
+P15: 11. The “must Ride-through zone” is the combined area of the mandatory operating regions, the continuous operating regions, and the permissive operating region. All area outside of these operating regions is referred to as the “may Ride-through zone.”
+P17: Table 3: Frequency Ride-through Capability Requirements
+P17: > 61.8 May trip
+P17: > 61.2 299
+P17: ≤ 61.2 and ≥ 58.8 Continuous
+P17: < 58.8 299
+P17: < 57.0 May trip
+P17: 1. Frequency measurements are taken at the high-side of the main power transformer.
+P17: 2. Frequency is measured over a period of time (typically 3-6 cycles) to calculate system frequency at the high-side of the main power transformer.
+P17: 4. At any given frequency value, each Inverter-Based Resource shall Ride-through unless the time duration at that frequency has exceeded the specified minimum ride-through time duration.
+P17: 5. The specified durations of Table 3 are cumulative over one or more disturbances within a 10-minute time period.
+P13: 2 August 18, 2026 Adopted by the NERC Board of Trustees

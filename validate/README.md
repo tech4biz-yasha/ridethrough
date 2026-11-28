@@ -6,6 +6,7 @@ against itself. Run them from the repository root.
 ```
 python validate/check_tables.py    # every table row, parsed from the source
 python validate/check_scalars.py   # each 2.15 and 2.6.4 constant, against a quoted sentence
+python validate/check_prc029.py    # the PRC-029-2 tables and constants
 ```
 
 `src_2_15.txt` and `src_2_6_4.txt` are the two sections of ERCOT Nodal
@@ -20,6 +21,16 @@ values are absent. The two definition thresholds from Nodal Protocols Section
 
 `coverage.md` lists every clause of both sections and marks it graded,
 declared out of scope, or a gap.
+
+`src_prc_029_2.txt` is an extract of NERC Reliability Standard PRC-029-2:
+its three tables and a selection of its sentences, each with its page
+number. `check_prc029.py` parses the tables out of it, works out from the
+printed signs which values each row covers, and asserts that
+`ridethrough/prc029.py` returns that row's region and time at both ends of
+it. It then asserts each constant against a sentence in the extract. Run
+with `--pdf` and a copy of the standard, it also checks that every line of
+the extract is found on its stated page of the PDF. That form needs
+`pdftotext` from poppler.
 
 The point of keeping these in the repository is that anyone can rerun them.
 A claim that the numbers come from the rule is worth less than a script

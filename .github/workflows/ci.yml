@@ -20,4 +20,5 @@ jobs:
       - run: ruff check .
       - run: python validate/check_tables.py
       - run: python validate/check_scalars.py
+      - run: python validate/check_prc029.py
       - run: python -m pytest -q

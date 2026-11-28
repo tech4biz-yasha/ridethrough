@@ -216,6 +216,17 @@ the frequency transfer route. The clause saying a facility "should" stay
 within 10% of its pre-disturbance power is reported and not scored, because
 the rule says should rather than shall.
 
+## Inverter-based generators: PRC-029-2
+
+NERC Reliability Standard PRC-029-2 sets voltage and frequency ride-through
+requirements for inverter-based resources. Its three tables, and fifteen
+values from its requirements, are carried in `ridethrough/prc029.py` and
+checked against the text of the standard.
+
+That is all so far. This package does not grade a generator yet. The tables
+as printed, the way the rows are stored and the reading that involves are in
+[docs/PRC-029-2.md](docs/PRC-029-2.md).
+
 ## Checking the numbers against the rule
 
 A claim that the values come from the rule is worth less than a script that
@@ -224,16 +235,20 @@ checks it, so both ship with the package.
 ```
 python validate/check_tables.py
 python validate/check_scalars.py
+python validate/check_prc029.py
 ```
 
 The first parses Table A out of the rule text in `validate/` and asserts
 this package returns the stated minimum ride-through time at both edges of
 every band. The second asserts each ERCOT constant from Sections 2.15 and
 2.6.4 against a quoted sentence from the source, and confirms the superseded
-draft values are absent. Both run in CI. The two definition thresholds from
-Nodal Protocols Section 2.1 and the Energinet values are not covered by
-these scripts. `validate/coverage.md` lists every clause of both sections and marks it
-graded or out of scope.
+draft values are absent. The third checks the three PRC-029-2 tables and
+those fifteen values against an extract of that standard. All three run in
+CI.
+The two definition thresholds from Nodal Protocols Section 2.1 and the
+Energinet values are not covered by these scripts. `validate/coverage.md`
+lists every clause of the two ERCOT sections and marks it graded or out of
+scope.
 
 ## What is not graded, and why
 
@@ -327,6 +342,10 @@ Energinet Technical Regulation 3.4.3, Revision 1, effective
 | Urec1 | 0.35 | trec2 0.55 |
 | Urec2 | 0.90 | trec3 1.5 |
 
+NERC PRC-029-2 values are transcribed from the standard as adopted by the
+NERC Board of Trustees on 18 August 2026. They are listed with their clauses
+in [docs/PRC-029-2.md](docs/PRC-029-2.md).
+
 The full method, with each statement tied to its clause or its file, is in
 [docs/METHOD.md](docs/METHOD.md).
 
@@ -397,6 +416,9 @@ laboratory, and this project does not claim it.
 
 It does not issue compliance approval. It produces evidence.
 
+It does not grade inverter-based generators. The PRC-029-2 tables are carried
+as data only.
+
 The archetypes are configurations, not sites. Nothing in this repository is a
 measurement of any real facility.
 
@@ -415,6 +437,7 @@ until you have confirmed the reproduced numbers.
 ```
 ridethrough/      the package
   envelope.py     envelopes, as band tables and as voltage-time curves
+  prc029.py       NERC PRC-029-2 tables and constants, data only
   codes.py        grid codes: envelope plus obligations
   grade.py        the grader
   facility.py     the facility model
@@ -423,7 +446,8 @@ ridethrough/      the package
   cli.py          check, run, sweep, simulate, repeated, reclosing, grade, codes
 validate/         the rule text, and scripts that check the package against it
 docs/METHOD.md    the method, statement by statement
-tests/            209 tests
+docs/PRC-029-2.md the PRC-029-2 tables, and how they are stored
+tests/            264 tests
 results/          one generated scorecard per code
 examples/         a facility description, two runs and two counting cases
 action.yml        the GitHub Action

@@ -16,8 +16,18 @@
   together. They are the two cases in Tech4Biz's comments of 26 November
   2026 on PJM's filing in FERC Docket No. ER27-522-000. No rule value and
   no grading behaviour changed.
-- Six tests pin the numbers those cases state. The README test count now
-  reads 209.
+- Six tests pin the numbers those cases state.
+- `ridethrough/prc029.py` carries the three tables of NERC Reliability
+  Standard PRC-029-2, voltage and frequency ride-through for inverter-based
+  resources, and fifteen values from its requirements, as data. Nothing
+  grades a generator yet.
+- `validate/check_prc029.py` asserts every row and every constant against an
+  extract of the standard in `validate/src_prc_029_2.txt`, and with `--pdf`
+  checks the extract against a copy of the PDF. It runs in CI.
+- `docs/PRC-029-2.md` gives the tables as printed and how the rows are
+  stored as bands, which is a reading.
+- 55 tests cover the new tables and the check. The README test count now
+  reads 264. No ERCOT or Energinet value and no grading behaviour changed.
 
 ## 0.6.1 (2026-11-27)
 
