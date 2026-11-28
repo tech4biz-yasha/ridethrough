@@ -381,6 +381,9 @@ ridden through separately. The trace is now split into separate excursions
 and each is measured on its own. Both the old behaviour and the fix are
 pinned as tests.
 
+Both points are worked through in `examples/counting_cases.py`: one sag
+through two bands, and six sags inside 90 seconds, each counted two ways.
+
 ## What this is not
 
 This is an averaged model. It carries energy and power at the millisecond
@@ -420,9 +423,9 @@ ridethrough/      the package
   cli.py          check, run, sweep, simulate, repeated, reclosing, grade, codes
 validate/         the rule text, and scripts that check the package against it
 docs/METHOD.md    the method, statement by statement
-tests/            203 tests
+tests/            209 tests
 results/          one generated scorecard per code
-examples/         a facility description and two hand-written runs
+examples/         a facility description, two runs and two counting cases
 action.yml        the GitHub Action
 ```
 

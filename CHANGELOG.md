@@ -7,6 +7,18 @@
 > recorded as they were at the time and several of them are wrong. The
 > approved values are in 0.6.0 and in `validate/`.
 
+## Unreleased
+
+- `examples/counting_cases.py` runs two voltage events against ERCOT
+  Section 2.15(3), Table A, each counted two ways: one sag through two
+  bands, counted band by band and as total time below each band's upper
+  edge, and six sags inside 90 seconds, assessed one at a time and added
+  together. They are the two cases in Tech4Biz's comments of 26 November
+  2026 on PJM's filing in FERC Docket No. ER27-522-000. No rule value and
+  no grading behaviour changed.
+- Six tests pin the numbers those cases state. The README test count now
+  reads 209.
+
 ## 0.6.1 (2026-11-27)
 
 Corrections to the documentation and two more source checks. No rule value
