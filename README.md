@@ -223,9 +223,20 @@ requirements for inverter-based resources. Its three tables, and fifteen
 values from its requirements, are carried in `ridethrough/prc029.py` and
 checked against the text of the standard.
 
-That is all so far. This package does not grade a generator yet. The tables
-as printed, the way the rows are stored and the reading that involves are in
-[docs/PRC-029-2.md](docs/PRC-029-2.md).
+The tables as printed, the way the rows are stored and the reading that
+involves are in [docs/PRC-029-2.md](docs/PRC-029-2.md).
+
+`ridethrough/recording.py` reads fault recorder files, COMTRADE and CSV, and
+works out the quantities that standard is written in: fundamental RMS
+voltage on each phase in per unit, frequency, rate of change of frequency,
+positive sequence phase angle and Real Power. It also finds each stretch
+where voltage is outside the continuous operation region. How each one is
+computed, and how far a one-cycle window can move the answer, is in
+[docs/RECORDINGS.md](docs/RECORDINGS.md).
+
+This package does not grade a generator yet. The recorder reader has been
+checked on files written by this package and by an independent COMTRADE
+library. It has not yet been run on files from a plant's own recorders.
 
 ## Checking the numbers against the rule
 
@@ -417,7 +428,8 @@ laboratory, and this project does not claim it.
 It does not issue compliance approval. It produces evidence.
 
 It does not grade inverter-based generators. The PRC-029-2 tables are carried
-as data only.
+as data, and recorder files can be read into the quantities the standard
+uses, but nothing compares the two yet.
 
 The archetypes are configurations, not sites. Nothing in this repository is a
 measurement of any real facility.
@@ -438,6 +450,7 @@ until you have confirmed the reproduced numbers.
 ridethrough/      the package
   envelope.py     envelopes, as band tables and as voltage-time curves
   prc029.py       NERC PRC-029-2 tables and constants, data only
+  recording.py    recorder files in, RMS voltage, frequency and power out
   codes.py        grid codes: envelope plus obligations
   grade.py        the grader
   facility.py     the facility model
@@ -447,7 +460,8 @@ ridethrough/      the package
 validate/         the rule text, and scripts that check the package against it
 docs/METHOD.md    the method, statement by statement
 docs/PRC-029-2.md the PRC-029-2 tables, and how they are stored
-tests/            264 tests
+docs/RECORDINGS.md how recorder files are read, and the limits of the method
+tests/            386 tests
 results/          one generated scorecard per code
 examples/         a facility description, two runs and two counting cases
 action.yml        the GitHub Action

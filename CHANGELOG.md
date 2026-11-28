@@ -26,8 +26,24 @@
   checks the extract against a copy of the PDF. It runs in CI.
 - `docs/PRC-029-2.md` gives the tables as printed and how the rows are
   stored as bands, which is a reading.
-- 55 tests cover the new tables and the check. The README test count now
-  reads 264. No ERCOT or Energinet value and no grading behaviour changed.
+- 55 tests cover the new tables and the check. No ERCOT or Energinet value
+  and no grading behaviour changed.
+- `ridethrough/recording.py` reads fault recorder files: COMTRADE `.cfg`
+  with `.dat` in the 1991, 1999 and 2013 layouts, as text or binary, and
+  CSV. From the samples it works out fundamental RMS voltage on each phase
+  in per unit, with the lowest and the highest phase, the positive sequence
+  phase angle and its jumps, frequency, rate of change of frequency and
+  Real Power. It finds each stretch where voltage is outside the continuous
+  operation region of a PRC-029-2 table, and puts several records on one
+  time axis by their start times. It adds no dependency. Nothing grades a
+  generator yet.
+- `docs/RECORDINGS.md` sets out how each quantity is computed, the choices
+  PRC-029-2 leaves to whoever does the measuring, and how far a one-cycle
+  window can move a reading.
+- 122 tests check the reader and the arithmetic against known answers. A
+  further 12 compare the COMTRADE reader with the independent `comtrade`
+  package, and run only where that package is installed. The README test
+  count now reads 386. No rule value and no grading behaviour changed.
 
 ## 0.6.1 (2026-11-27)
 
